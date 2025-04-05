@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do App</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    h1 { color: #333; }
+    input, button { padding: 10px; margin: 5px 0; }
+    .task { background: white; padding: 10px; margin: 5px 0; border-radius: 5px; }
+    .completed { text-decoration: line-through; color: gray; }
+    .section { margin-top: 20px; }
+    .actions button { margin-right: 5px; }
+  </style>
+</head>
+<body>
+  <h1>📝 To-Do App</h1>
+  <input type="text" id="taskInput" placeholder="Add a new task...">
+  <button onclick="addTask()">Add Task</button>
+
+  <div class="section">
+    <h2>📌 Pending Tasks</h2>
+    <div id="pendingList"></div>
+  </div>
+
+  <div class="section">
+    <h2>✅ Completed Tasks</h2>
+    <div id="completedList"></div>
+  </div>
+
+  <script>
+    let tasks = [];
+
+    function addTask() {
+      const input = document.getElementById('taskInput');
+      const taskText = input.value.trim();
+      if (taskText) {
+        const newTask = {
+          id: Date.now(),
+          text: taskText,
+          completed: false,
+          addedAt: new Date().toLocaleString()
+        };
+        tasks.push(newTask);
+        input.value = '';
+        renderTasks();
+      }
+    }
+
+    function toggleComplete(id) {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        task.completed = !task.completed;
+        if (task.completed) task.completedAt = new Date().toLocaleString();
+        renderTasks();
+      }
+    }
+
+    function deleteTask(id) {
+      tasks = tasks.filter(t => t.id !== id);
+      renderTasks();
+    }
+
+    function editTask(id) {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        const newText = prompt('Edit your task:', task.text);
+        if (newText !== null) {
+          task.text = newText.trim();
+          renderTasks();
+        }
+      }
+    }
+
+    function renderTasks() {
+      const pending = document.getElementById('pendingList');
+      const completed = document.getElementById('completedList');
+      pending.innerHTML = '';
+      completed.innerHTML = '';
+
+      tasks.forEach(task => {
+        const div = document.createElement('div');
+        div.className = 'task';
+        div.innerHTML = `
+          <span class="${task.completed ? 'completed' : ''}">${task.text}</span>
+          <small> (${task.completed ? 'Completed: ' + task.completedAt : 'Added: ' + task.addedAt})</small><br>
+          <div class="actions">
+            <button onclick="toggleComplete(${task.id})">${task.completed ? 'Undo' : 'Complete'}</button>
+            <button onclick="editTask(${task.id})">Edit</button>
+            <button onclick="deleteTask(${task.id})">Delete</button>
+          </div>
+        `;
+        (task.completed ? completed : pending).appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
